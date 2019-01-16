@@ -4,7 +4,7 @@
 # ===Import===
 import PyInstaller as PYINT
 from PyInstaller.__main__ import run
-UIFILENAME = 'ComportTerminal Ver 9.0 by JiRong'
+UIFILENAME = 'ComportTerminal Ver 9.1 by JiRong'
 PY_File_Name = "main.py"
 opts = [PY_File_Name,
         '-w',

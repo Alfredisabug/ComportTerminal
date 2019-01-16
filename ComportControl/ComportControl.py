@@ -16,7 +16,7 @@ class SerialControl(serial.Serial):
         star_time = time.time()
         while not self.inWaiting():
             time.sleep(0.01)
-            if time.time()-star_time>stop_time:
+            if time.time()-star_time > stop_time:
                 break
         length = self.inWaiting()
         if not length == 0:
@@ -31,4 +31,5 @@ class SerialControl(serial.Serial):
             sum += int(i.encode('hex'), 16)
         pec = ('%02x' % (0xFFFF - sum + 1)).decode('hex')
         self.write(data + pec)
+        return data+pec
 

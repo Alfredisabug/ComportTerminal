@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ASCIICODEUI.ui'
 #
-# Created: Tue Jan 15 16:46:56 2019
+# Created: Wed Jan 16 09:50:26 2019
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!

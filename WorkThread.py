@@ -11,7 +11,7 @@ from PySide import QtCore
 
 class WorkThread(QtCore.QThread):
     reply_signal = QtCore.Signal(str)
-    error_signal = QtCore.Signal(str)
+    cmd_signal = QtCore.Signal(str)
 
     def __init__(self):
         QtCore.QThread.__init__(self)
@@ -26,7 +26,8 @@ class WorkThread(QtCore.QThread):
         elif self.pec == "1Byte PEC 2's complement":
             print "No support yet."
         elif self.pec == "2Byte PEC 2's complement":
-            self.com.write_with_2scomplement(self.write_string)
+            send_str = self.com.write_with_2scomplement(self.write_string)
 
+        self.cmd_signal.emit(send_str.encode('hex'))
         data = self.com.read_data(1)
         self.reply_signal.emit(data)

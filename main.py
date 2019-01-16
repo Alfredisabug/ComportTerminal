@@ -33,9 +33,11 @@ class MainWindow(QtGui.QMainWindow, MainUI.Ui_MainWindow):
         self.setWindowIcon(QtGui.QIcon("JiRongLogo.ico"))
         self.comport = None
         self.baudrate = 115200
+        self.reply_data = None
 
         self.work_thread = WorkThread.WorkThread()
         self.work_thread.reply_signal.connect(self.show_return_data)
+        self.work_thread.cmd_signal.connect(self.show_write_cmd_data)
 
         self.about_ui = AboutUIMain.AboutUIClass()
         self.setting_ui = SettingUIMain.SettingUIClass()
@@ -60,7 +62,7 @@ class MainWindow(QtGui.QMainWindow, MainUI.Ui_MainWindow):
         self.display_chg_btn.clicked.connect(self.change_display_format)
         self.exit_btn.clicked.connect(self.close)
         self.show_about_btn.clicked.connect(lambda: self.about_ui.show())
-        self.set_marco_btn.clicked.connect(self.show_setting_widget)
+        self.set_marco_btn.clicked.connect(lambda: self.setting_ui.show())
         self.save_marco_file_btn.clicked.connect(self.save_marco_to_txt)
         self.open_marco_file_btn.clicked.connect(self.open_marco_txt)
 
@@ -85,6 +87,11 @@ class MainWindow(QtGui.QMainWindow, MainUI.Ui_MainWindow):
         file_address = QtGui.QFileDialog.getOpenFileName(self, "Open File", "./", "(*.txt)")
         if file_address[0] == "" or file_address[1] == "":
             return
+
+        for i in xrange(1, 41):
+            self.__dict__["marco_btn_{}".format(i)].setText("")
+            self.setting_ui.__dict__["cmd_name_lineedit_{}".format(i)].setText("")
+            self.setting_ui.__dict__["str_lineedit_{}".format(i)].setText("")
 
         count = 0
         target_number = 1
@@ -119,21 +126,28 @@ class MainWindow(QtGui.QMainWindow, MainUI.Ui_MainWindow):
         self.work_thread.start()
         self.send_btn.setEnabled(False)
 
-    def show_setting_widget(self):
-        self.setting_ui.show()
-
     def change_display_format(self):
         if self.display_chg_btn.text() == "ASCII":
+            if self.reply_data:
+                display_str = ""
+                for i in self.reply_data:
+                    display_str += (hex(ord(i))) + " "
+                self.reply_lineedit.setText(display_str)
             self.display_chg_btn.setText("HEX")
         elif self.display_chg_btn.text() == "HEX":
+            if self.reply_data:
+                self.reply_lineedit.setText(self.reply_data)
             self.display_chg_btn.setText("ASCII")
 
     def show_return_data(self, reply_str):
         if not reply_str:
             self.reply_lineedit.setText("Timeout!")
+            self.reply_data = None
         elif self.display_chg_btn.text() == "ASCII":
+            self.reply_data = reply_str
             self.reply_lineedit.setText(reply_str)
         elif self.display_chg_btn.text() == "HEX":
+            self.reply_data = reply_str
             display_str = ''
             for i in reply_str:
                 display_str += (hex(ord(i))) + " "
@@ -149,6 +163,12 @@ class MainWindow(QtGui.QMainWindow, MainUI.Ui_MainWindow):
         self.work_thread.write_string = self.send_string_lineedit.text()
         self.work_thread.start()
         self.send_btn.setEnabled(False)
+
+    def show_write_cmd_data(self, write_string):
+        show_str = ''
+        for i in xrange(0, len(write_string), 2):
+            show_str += write_string[i].upper() + write_string[i+1].upper() + " "
+        self.marco_string_lineedit.setText(show_str)
 
     def open_com(self):
         if self.comport_combobox.currentText() == "":
